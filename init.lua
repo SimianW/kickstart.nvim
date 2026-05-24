@@ -99,7 +99,10 @@ do
   vim.g.maplocalleader = ' '
 
   -- Set to true if you have a Nerd Font installed and selected in the terminal
-  vim.g.have_nerd_font = false
+  vim.g.have_nerd_font = true
+
+  -- using this location for python vim.provider
+  vim.g.python3_host_prog = vim.fn.expand '~/.venvs/nvim/bin/python'
 
   -- [[ Setting options ]]
   --  See `:help vim.o`
@@ -110,7 +113,15 @@ do
   vim.o.number = true
   -- You can also add relative line numbers, to help with jumping.
   --  Experiment for yourself to see if you like it!
-  -- vim.o.relativenumber = true
+  vim.o.relativenumber = true
+
+  vim.api.nvim_create_autocmd('InsertEnter', {
+    callback = function() vim.o.relativenumber = false end,
+  })
+
+  vim.api.nvim_create_autocmd('InsertLeave', {
+    callback = function() vim.o.relativenumber = true end,
+  })
 
   -- Enable mouse mode, can be useful for resizing splits for example!
   vim.o.mouse = 'a'
@@ -185,22 +196,14 @@ do
     update_in_insert = false,
     severity_sort = true,
     float = { border = 'rounded', source = 'if_many' },
-    underline = { severity = { min = vim.diagnostic.severity.WARN } },
+    underline = { severity = vim.diagnostic.severity.ERROR },
 
     -- Can switch between these as you prefer
     virtual_text = true, -- Text shows up at the end of the line
-    virtual_lines = false, -- Text shows up underneath the line, with virtual lines
+    virtual_lines = false, -- Teest shows up underneath the line, with virtual lines
 
     -- Auto open the float, so you can easily read the errors when jumping with `[d` and `]d`
-    jump = {
-      on_jump = function(_, bufnr)
-        vim.diagnostic.open_float {
-          bufnr = bufnr,
-          scope = 'cursor',
-          focus = false,
-        }
-      end,
-    },
+    jump = { float = true },
   }
 
   vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
@@ -337,6 +340,8 @@ do
   --
   -- We first install it from https://github.com/NMAC427/guess-indent.nvim
   -- and then call its `setup()` function to start it with default settings.
+  vim.pack.add { gh 'github/copilot.vim' }
+
   vim.pack.add { gh 'NMAC427/guess-indent.nvim' }
   require('guess-indent').setup {}
 
@@ -394,7 +399,7 @@ do
   -- Load the colorscheme here.
   -- Like many other themes, this one has different styles, and you could load
   -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-  vim.cmd.colorscheme 'tokyonight-night'
+  vim.cmd.colorscheme 'tokyonight-storm'
 
   -- Highlight todo, notes, etc in comments
   vim.pack.add { gh 'folke/todo-comments.nvim' }
@@ -432,6 +437,30 @@ do
   local statusline = require 'mini.statusline'
   -- Set `use_icons` to true if you have a Nerd Font
   statusline.setup { use_icons = vim.g.have_nerd_font }
+
+  local function copilot_badge(kind)
+    local nerd = vim.g.have_nerd_font
+
+    local icons = nerd
+        and {
+          ready = '', -- nf-cod-copilot (AI ready)
+          noauth = '󰍁', -- not authenticated / needs login
+          off = '󰅛', -- disabled
+          err = '󰅚', -- error
+          busy = '󰄾', -- loading
+          other = '󰞋', -- unknown/info
+        }
+      or {
+        ready = 'AI',
+        noauth = 'AUTH',
+        off = 'OFF',
+        err = 'ERR',
+        busy = '...',
+        other = '?',
+      }
+
+    return (icons[kind] or icons.other) .. ' '
+  end
 
   -- You can configure sections in the statusline by overriding their
   -- default behavior. For example, here we set the section for
@@ -964,7 +993,7 @@ do
   -- require 'kickstart.plugins.indent_line'
   -- require 'kickstart.plugins.lint'
   -- require 'kickstart.plugins.autopairs'
-  -- require 'kickstart.plugins.neo-tree'
+  require 'kickstart.plugins.neo-tree'
   -- require 'kickstart.plugins.gitsigns' -- adds gitsigns recommended keymaps
 
   -- NOTE: You can add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
