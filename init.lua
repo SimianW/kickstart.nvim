@@ -396,18 +396,28 @@ do
   -- change the command under that to load whatever the name of that colorscheme is.
   --
   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-  vim.pack.add { gh 'folke/tokyonight.nvim' }
-  ---@diagnostic disable-next-line: missing-fields
-  require('tokyonight').setup {
+  vim.pack.add { gh 'loctvl842/monokai-pro.nvim' }
+  require('monokai-pro').setup {
+    transparent_background = false,
+    terminal_colors = true,
+    devicons = true,
+    filter = 'pro', -- pro | classic | octagon | machine | ristretto | spectrum
     styles = {
-      comments = { italic = false }, -- Disable italics in comments
+      comment = { italic = true },
+      keyword = { italic = true },
+    },
+    background_clear = {
+      'telescope',
+      'notify',
     },
   }
 
   -- Load the colorscheme here.
-  -- Like many other themes, this one has different styles, and you could load
-  -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-  vim.cmd.colorscheme 'tokyonight-storm'
+  vim.cmd.colorscheme 'monokai-pro'
+
+  -- Translucent floating windows and popup menus
+  vim.opt.winblend = 15
+  vim.opt.pumblend = 15
 
   -- Highlight todo, notes, etc in comments
   vim.pack.add { gh 'folke/todo-comments.nvim' }
@@ -811,10 +821,13 @@ do
   require('conform').setup {
     notify_on_error = false,
     format_on_save = function(bufnr)
-      -- You can specify filetypes to autoformat on save here:
+      -- 只对以下文件类型自动格式化
       local enabled_filetypes = {
-        -- lua = true,
-        -- python = true,
+        python = true,
+        json = true,
+        typescript = true,
+        javascript = true,
+        lua = true,
       }
       if enabled_filetypes[vim.bo[bufnr].filetype] then
         return { timeout_ms = 500 }
@@ -825,18 +838,26 @@ do
     default_format_opts = {
       lsp_format = 'fallback', -- Use external formatters if configured below, otherwise use LSP formatting. Set to `false` to disable LSP formatting entirely.
     },
-    -- You can also specify external formatters in here.
     formatters_by_ft = {
-      -- rust = { 'rustfmt' },
-      -- Conform can also run multiple formatters sequentially
-      -- python = { "isort", "black" },
-      --
-      -- You can use 'stop_after_first' to run the first available formatter from the list
-      -- javascript = { "prettierd", "prettier", stop_after_first = true },
+      python = { 'isort', 'black' },           -- 先排序 import，再格式化
+      json = { 'prettierd', stop_after_first = true },
+      typescript = { 'prettierd', stop_after_first = true },
+      javascript = { 'prettierd', stop_after_first = true },
+      lua = { 'stylua' },                       -- 已在 Mason 里配好
     },
   }
 
   vim.keymap.set({ 'n', 'v' }, '<leader>f', function() require('conform').format { async = true } end, { desc = '[F]ormat buffer' })
+end
+
+-- ============================================================
+-- SECTION 6b: JSON BROWSER
+-- nvim-jqx: browse JSON keys in a floating window
+-- Requires: jq (brew install jq)
+-- Usage: :Jqx on a JSON buffer
+-- ============================================================
+do
+  vim.pack.add { gh 'gennaro-tedesco/nvim-jqx' }
 end
 
 -- ============================================================
@@ -935,7 +956,7 @@ do
   vim.pack.add { { src = gh 'nvim-treesitter/nvim-treesitter', version = 'main' } }
 
   -- Ensure basic parsers are installed
-  local parsers = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
+  local parsers = { 'bash', 'c', 'diff', 'html', 'json', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
   require('nvim-treesitter').install(parsers)
 
   ---@param buf integer
@@ -948,8 +969,8 @@ do
 
     -- Enable treesitter based folds
     -- For more info on folds see `:help folds`
-    -- vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
-    -- vim.wo.foldmethod = 'expr'
+    vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+    vim.wo.foldmethod = 'expr'
 
     -- Check if treesitter indentation is available for this language, and if so enable it
     -- in case there is no indent query, the indentexpr will fallback to the vim's built in one
@@ -1007,7 +1028,7 @@ do
   -- NOTE: You can add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- require 'custom.plugins'
+  require 'custom.plugins'
 end
 
 -- The line beneath this is called `modeline`. See `:help modeline`
