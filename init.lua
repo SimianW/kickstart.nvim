@@ -103,6 +103,8 @@ do
 
   -- using this location for python vim.provider
   vim.g.python3_host_prog = vim.fn.expand '~/.venvs/nvim/bin/python'
+  vim.g.loaded_perl_provider = 0
+  vim.g.loaded_ruby_provider = 0
 
   -- [[ Setting options ]]
   --  See `:help vim.o`
@@ -398,7 +400,7 @@ do
   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
   vim.pack.add { gh 'loctvl842/monokai-pro.nvim' }
   require('monokai-pro').setup {
-    transparent_background = false,
+    transparent_background = true, -- Use a transparent background (shows terminal background)
     terminal_colors = true,
     devicons = true,
     filter = 'pro', -- pro | classic | octagon | machine | ristretto | spectrum
@@ -409,6 +411,8 @@ do
     background_clear = {
       'telescope',
       'notify',
+      'neo-tree', -- Transparent background for the file sidebar
+      'float_win', -- Transparent background for floating windows
     },
   }
 
@@ -928,14 +932,11 @@ do
 
     snippets = { preset = 'luasnip' },
 
-    -- Blink.cmp includes an optional, recommended rust fuzzy matcher,
-    -- which automatically downloads a prebuilt binary when enabled.
-    --
-    -- By default, we use the Lua implementation instead, but you may enable
-    -- the rust implementation via `'prefer_rust_with_warning'`
+    -- Blink.cmp includes an optional, recommended Rust fuzzy matcher,
+    -- which automatically downloads a prebuilt binary on supported systems.
     --
     -- See `:help blink-cmp-config-fuzzy` for more information
-    fuzzy = { implementation = 'lua' },
+    fuzzy = { implementation = 'prefer_rust' },
 
     -- Shows a signature help window while you type arguments for a function
     signature = { enabled = true },
