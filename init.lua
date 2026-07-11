@@ -756,6 +756,12 @@ do
 
     stylua = {}, -- Used to format Lua code
 
+    -- LaTeX language support and prose spelling/grammar diagnostics
+    texlab = {},
+    ltex_plus = {
+      filetypes = { 'bib', 'gitcommit', 'markdown', 'plaintex', 'rst', 'tex', 'text' },
+    },
+
     -- Special Lua Config, as recommended by neovim help docs
     lua_ls = {
       on_init = function(client)
@@ -810,7 +816,10 @@ do
   -- You can press `g?` for help in this menu.
   local ensure_installed = vim.tbl_keys(servers or {})
   vim.list_extend(ensure_installed, {
-    -- You can add other tools here that you want Mason to install
+    'ruff',
+    'eslint_d',
+    'markdownlint',
+    'latexindent',
   })
 
   require('mason-tool-installer').setup { ensure_installed = ensure_installed }
@@ -838,6 +847,7 @@ do
         typescript = true,
         javascript = true,
         lua = true,
+        tex = true,
       }
       if enabled_filetypes[vim.bo[bufnr].filetype] then
         return { timeout_ms = 500 }
@@ -849,11 +859,12 @@ do
       lsp_format = 'fallback', -- Use external formatters if configured below, otherwise use LSP formatting. Set to `false` to disable LSP formatting entirely.
     },
     formatters_by_ft = {
-      python = { 'isort', 'black' },           -- 先排序 import，再格式化
+      python = { 'isort', 'black' }, -- 先排序 import，再格式化
       json = { 'prettierd', stop_after_first = true },
       typescript = { 'prettierd', stop_after_first = true },
       javascript = { 'prettierd', stop_after_first = true },
-      lua = { 'stylua' },                       -- 已在 Mason 里配好
+      lua = { 'stylua' }, -- 已在 Mason 里配好
+      tex = { 'latexindent' },
     },
   }
 
@@ -1027,7 +1038,7 @@ do
   --
   -- require 'kickstart.plugins.debug'
   -- require 'kickstart.plugins.indent_line'
-  -- require 'kickstart.plugins.lint'
+  require 'kickstart.plugins.lint'
   -- require 'kickstart.plugins.autopairs'
   require 'kickstart.plugins.neo-tree'
   -- require 'kickstart.plugins.gitsigns' -- adds gitsigns recommended keymaps
