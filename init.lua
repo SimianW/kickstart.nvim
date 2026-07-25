@@ -758,7 +758,7 @@ do
 
     -- LaTeX language support and prose spelling/grammar diagnostics
     texlab = {},
-    ltex_plus = {
+    harper_ls = {
       filetypes = { 'bib', 'gitcommit', 'markdown', 'plaintex', 'rst', 'tex', 'text' },
     },
 
@@ -841,16 +841,17 @@ do
     notify_on_error = false,
     format_on_save = function(bufnr)
       -- 只对以下文件类型自动格式化
-      local enabled_filetypes = {
-        python = true,
-        json = true,
-        typescript = true,
-        javascript = true,
-        lua = true,
-        tex = true,
+      local timeout_by_filetype = {
+        python = 500,
+        json = 500,
+        typescript = 500,
+        javascript = 500,
+        lua = 500,
+        tex = 3000, -- latexindent 启动慢，长文件容易超过默认的 500ms
       }
-      if enabled_filetypes[vim.bo[bufnr].filetype] then
-        return { timeout_ms = 500 }
+      local timeout_ms = timeout_by_filetype[vim.bo[bufnr].filetype]
+      if timeout_ms then
+        return { timeout_ms = timeout_ms }
       else
         return nil
       end
