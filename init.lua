@@ -756,11 +756,8 @@ do
 
     stylua = {}, -- Used to format Lua code
 
-    -- LaTeX language support and prose spelling/grammar diagnostics
+    -- LaTeX language support
     texlab = {},
-    harper_ls = {
-      filetypes = { 'bib', 'gitcommit', 'markdown', 'plaintex', 'rst', 'tex', 'text' },
-    },
 
     -- Special Lua Config, as recommended by neovim help docs
     lua_ls = {
@@ -818,7 +815,6 @@ do
   vim.list_extend(ensure_installed, {
     'ruff',
     'eslint_d',
-    'markdownlint',
     'latexindent',
   })
 
